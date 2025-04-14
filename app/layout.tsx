@@ -21,11 +21,21 @@ export default function RootLayout({
         <ThemeProvider attribute="class" defaultTheme="dark">
           <TooltipProvider>
             <SidebarProvider>
-              <div className="flex min-h-screen bg-[#111827]">
-                <div className="hidden md:block">
+              <div className="flex min-h-screen bg-[#111827] overflow-hidden">
+                <div className="hidden md:block fixed left-0 top-0 h-full z-40">
                   <DashboardSidebar />
                 </div>
-                <div id="main-content" className="flex-1">
+                <div
+                  id="main-content"
+                  className="flex-1 relative box-border overflow-x-hidden"
+                  style={{
+                    marginLeft: "5rem", // Default margin, will be updated by SidebarEffect
+                    width: "calc(100% - 5rem)", // Default width, will be updated by SidebarEffect
+                    minHeight: "100vh",
+                    transition:
+                      "margin-left 0.3s ease-in-out, width 0.3s ease-in-out",
+                  }}
+                >
                   {children}
                 </div>
               </div>
