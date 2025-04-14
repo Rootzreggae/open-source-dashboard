@@ -1,7 +1,6 @@
 "use client";
 
 import type React from "react";
-
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
@@ -14,13 +13,19 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
+import { useSidebar } from "@/hooks/use-sidebar";
 
 export function DashboardSidebar() {
   const pathname = usePathname();
+  const { isExpanded, toggleSidebar } = useSidebar();
 
   return (
-    <aside className="fixed inset-y-0 left-0 z-20 flex w-[220px] flex-col bg-[#171C2C] transition-all duration-300 ease-in-out">
-      {/* Logo and brand */}
+    <aside
+      className={cn(
+        "fixed inset-y-0 left-0 z-20 flex flex-col bg-[#171C2C] transition-all duration-300 ease-in-out",
+        isExpanded ? "w-[220px]" : "w-20",
+      )}
+    >
       <div className="flex h-16 items-center px-4">
         <div className="flex items-center gap-3">
           <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#00C853] text-white">
@@ -49,11 +54,14 @@ export function DashboardSidebar() {
               </defs>
             </svg>
           </div>
-          <span className="text-lg font-semibold text-white">ServiceRadar</span>
+          {isExpanded && (
+            <span className="text-lg font-semibold text-white">
+              ServiceRadar
+            </span>
+          )}
         </div>
       </div>
 
-      {/* Navigation */}
       <nav className="flex-1 py-4">
         <ul className="space-y-1 px-2">
           <NavItem
@@ -61,18 +69,21 @@ export function DashboardSidebar() {
             icon={<LayoutDashboard size={18} />}
             label="Dashboard"
             isActive={pathname === "/"}
+            isExpanded={isExpanded}
           />
           <NavItem
             href="/pollers"
             icon={<Radio size={18} />}
             label="Pollers"
             isActive={pathname === "/pollers"}
+            isExpanded={isExpanded}
           />
           <NavItem
             href="/services"
             icon={<Server size={18} />}
             label="Services"
             isActive={pathname === "/services"}
+            isExpanded={isExpanded}
             disabled={true}
           />
           <NavItem
@@ -80,25 +91,33 @@ export function DashboardSidebar() {
             icon={<Bell size={18} />}
             label="Alerts"
             isActive={pathname === "/alerts"}
+            isExpanded={isExpanded}
           />
           <NavItem
             href="/settings"
             icon={<Settings size={18} />}
             label="Settings"
             isActive={pathname === "/settings"}
+            isExpanded={isExpanded}
           />
         </ul>
       </nav>
 
-      {/* Collapse Button */}
       <div className="border-t border-[#2E3447] p-2">
         <Button
           variant="ghost"
           size="sm"
+          onClick={toggleSidebar}
           className="w-full justify-between text-gray-400 hover:bg-[#1A1F32] hover:text-white"
         >
-          <span>Collapse</span>
-          <ChevronLeft size={16} />
+          {isExpanded && <span>Collapse</span>}
+          <ChevronLeft
+            size={16}
+            className={cn(
+              "transition-transform duration-300",
+              !isExpanded && "rotate-180",
+            )}
+          />
         </Button>
       </div>
     </aside>
@@ -110,6 +129,7 @@ interface NavItemProps {
   icon: React.ReactNode;
   label: string;
   isActive: boolean;
+  isExpanded: boolean;
   disabled?: boolean;
 }
 
@@ -118,16 +138,9 @@ function NavItem({
   icon,
   label,
   isActive,
+  isExpanded,
   disabled = false,
 }: NavItemProps) {
-  // Prevent navigation for disabled items
-  const handleClick = (e: React.MouseEvent) => {
-    if (disabled) {
-      e.preventDefault();
-      e.stopPropagation();
-    }
-  };
-
   return (
     <li>
       <Link
@@ -147,10 +160,14 @@ function NavItem({
         }}
         aria-disabled={disabled}
       >
-        <span className="mr-3">{icon}</span>
-        <span>{label}</span>
-        {disabled && (
-          <span className="ml-2 text-xs text-gray-500">(Disabled)</span>
+        <span className={cn("mr-3", !isExpanded && "mr-0")}>{icon}</span>
+        {isExpanded && (
+          <>
+            <span>{label}</span>
+            {disabled && (
+              <span className="ml-2 text-xs text-gray-500">(Disabled)</span>
+            )}
+          </>
         )}
       </Link>
     </li>
